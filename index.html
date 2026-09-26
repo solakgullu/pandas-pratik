@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pandas Pratik & Kod Sınavı</title>
+  <style>
+    :root {
+      --bg: #fff5f7;              /* Çok açık pastel pembe arka plan */
+      --card-bg: #ffffff;         /* Beyaz kart zemini */
+      --primary: #db2777;         /* Canlı gül / ahududu pembesi */
+      --primary-hover: #be185d;   /* Koyu pembe */
+      --primary-light: #fce7f3;   /* Yumuşak pembe rozet ve buton arka planı */
+      --primary-border: #f472b6;  /* Pastel pembe kenarlıklar */
+      --accent: #ec4899;          /* Canlı pembe vurgu */
+      --text: #4a1525;            /* Koyu mürdüm / sıcak espresso metin */
+      --muted: #9d5c6f;           /* Gül kurusu ikincil metin */
+      --success: #059669;         /* Doğru cevap yeşili */
+      --success-bg: #d1fae5;
+      --danger: #e11d48;          /* Hata kırmızısı */
+      --danger-bg: #ffe4e6;
+      --code-bg: #38121d;         /* Koyu pembe-mürdüm şık kod kutusu */
+      --code-text: #fed7e2;        /* Kod kutusu içi açık pudra metin */
+      --blank-highlight: #fda4af;  /* Boşluk vurgu rengi */
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 28px 16px;
+      margin: 0;
+    }
+
+    h1 {
+      color: var(--primary);
+      margin-bottom: 6px;
+      font-size: 1.85rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .sub {
+      color: var(--muted);
+      margin-top: 0;
+      margin-bottom: 24px;
+      font-size: 0.95rem;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 22px;
+    }
+
+    button.tab-btn {
+      padding: 10px 24px;
+      border: 2px solid var(--primary-border);
+      background: white;
+      color: var(--primary);
+      font-weight: 600;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      box-shadow: 0 2px 8px rgba(219, 39, 119, 0.08);
+    }
+
+    button.tab-btn:hover {
+      background: var(--primary-light);
+    }
+
+    button.tab-btn.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+      box-shadow: 0 4px 12px rgba(219, 39, 119, 0.25);
+    }
+
+    .container {
+      width: 100%;
+      max-width: 630px;
+    }
+
+    /* Flashcard Stili */
+    .card {
+      background: var(--card-bg);
+      border-radius: 20px;
+      box-shadow: 0 12px 30px -5px rgba(219, 39, 119, 0.1);
+      min-height: 310px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 28px;
+      cursor: pointer;
+      border: 2px dashed #fbcfe8;
+      user-select: none;
+      transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-3px);
+      border-color: var(--primary);
+      box-shadow: 0 16px 36px -6px rgba(219, 39, 119, 0.16);
+    }
+
+    .code-tag {
+      font-family: 'Consolas', 'Courier New', monospace;
+      background: var(--primary-light);
+      color: var(--primary);
+      padding: 8px 18px;
+      border-radius: 12px;
+      font-size: 1.35rem;
+      font-weight: bold;
+      border: 1px solid #f9a8d4;
+      box-shadow: inset 0 1px 2px rgba(0,0,0,0.02);
+    }
+
+    .desc {
+      margin-top: 16px;
+      font-size: 1.05rem;
+      color: var(--text);
+      line-height: 1.55;
+    }
+
+    .code-snippet {
+      font-family: 'Consolas', monospace;
+      background: var(--code-bg);
+      color: var(--code-text);
+      text-align: left;
+      padding: 16px;
+      border-radius: 14px;
+      font-size: 0.88rem;
+      width: 95%;
+      margin-top: 18px;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      box-sizing: border-box;
+      border: 1px solid #6b213b;
+    }
+
+    .nav-btns {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+    }
+
+    .nav-btn {
+      padding: 10px 20px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 10px rgba(219, 39, 119, 0.2);
+    }
+
+    .nav-btn:hover {
+      background: var(--primary-hover);
+      transform: translateY(-1px);
+    }
+
+    /* Quiz Stili */
+    .quiz-box {
+      background: var(--card-bg);
+      padding: 28px;
+      border-radius: 20px;
+      box-shadow: 0 12px 30px -5px rgba(219, 39, 119, 0.1);
+      border: 1px solid #fce7f3;
+    }
+
+    .quiz-header {
+      font-size: 1.05rem;
+      color: var(--text);
+      margin-top: 0;
+      line-height: 1.45;
+    }
+
+    .code-challenge {
+      font-family: 'Consolas', monospace;
+      background: var(--code-bg);
+      color: #fbcfe8;
+      padding: 18px;
+      border-radius: 14px;
+      margin: 16px 0;
+      font-size: 0.92rem;
+      line-height: 1.55;
+      white-space: pre-wrap;
+      border: 1px solid #6b213b;
+    }
+
+    .blank-placeholder {
+      background: var(--blank-highlight);
+      color: #4a1525;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-weight: bold;
+    }
+
+    .opt-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .opt-btn {
+      width: 100%;
+      text-align: left;
+      padding: 12px 18px;
+      background: #fff8fa;
+      border: 1.5px solid #fbcfe8;
+      border-radius: 12px;
+      cursor: pointer;
+      font-family: 'Consolas', monospace;
+      font-size: 0.95rem;
+      color: var(--text);
+      transition: all 0.2s;
+    }
+
+    .opt-btn:hover {
+      background: var(--primary-light);
+      border-color: var(--primary-border);
+      transform: translateX(3px);
+    }
+
+    .opt-btn.correct {
+      background: var(--success-bg) !important;
+      border-color: var(--success) !important;
+      color: #065f46 !important;
+      font-weight: bold;
+    }
+
+    .opt-btn.wrong {
+      background: var(--danger-bg) !important;
+      border-color: var(--danger) !important;
+      color: #9f1239 !important;
+    }
+
+    .feedback-box {
+      margin-top: 14px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      min-height: 22px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🌸 Pandas Pratik & Kod Sınavı</h1>
+  <p class="sub">Tıkla çevir, kod senaryosundaki eksik fonksiyonu tamamla!</p>
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchMode('cards')">Kartlar (Flashcards)</button>
+    <button class="tab-btn" onclick="switchMode('quiz')">Boşluk Doldurma Testi</button>
+  </div>
+
+  <div class="container">
+    <!-- Kart Modu -->
+    <div id="cards-view">
+      <div class="card" onclick="flipCard()">
+        <span id="card-badge" style="color: var(--muted); font-size: 0.85rem; margin-bottom: 8px;">KARTA TIKLA (AÇIKLAMA VE KODU GÖR)</span>
+        <div id="card-front" class="code-tag">df.shape</div>
+        <div id="card-back" style="display: none; width: 100%;">
+          <div class="desc" id="card-desc"></div>
+          <div class="code-snippet" id="card-example"></div>
+        </div>
+      </div>
+      <div class="nav-btns">
+        <button class="nav-btn" onclick="prevCard()">Önceki</button>
+        <span id="card-counter" style="align-self: center; font-weight: 600; color: var(--muted);">1 / 14</span>
+        <button class="nav-btn" onclick="nextCard()">Sonraki</button>
+      </div>
+    </div>
+
+    <!-- Quiz Modu -->
+    <div id="quiz-view" style="display: none;">
+      <div class="quiz-box">
+        <div class="quiz-header" id="quiz-q"></div>
+        <div class="code-challenge" id="quiz-code"></div>
+        <div class="opt-grid" id="quiz-options"></div>
+        <div class="feedback-box" id="quiz-feedback"></div>
+        <button class="nav-btn" style="margin-top: 16px; width: 100%; border-radius: 12px;" onclick="nextQuiz()">Sonraki Soruya Geç ➔</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const dataset = [
+      {
+        func: "df.shape",
+        desc: "Tablonun satır ve sütun boyutunu (satır, sütun) demeti olarak verir.",
+        quizQ: "Veri setinin kaç satır ve sütundan oluştuğunu öğrenmek istiyoruz.",
+        blankSnippet: "# Tablo boyutunu öğren:\nboyut = df.______\nprint(boyut)  # Çıktı: (100, 5)",
+        answer: "shape",
+        cardCode: "# Tablonun satır ve sütun sayısı:\nprint(df.shape)  # (satir, sutun)"
+      },
+      {
+        func: "df.info()",
+        desc: "Sütun adlarını, dolu veri sayılarını ve veri tiplerini ekrana basar.",
+        quizQ: "Tablodaki sütun tiplerini ve boş olmayan hücre sayılarını tek ekranda incelemek istiyoruz.",
+        blankSnippet: "# Tablonun teknik ve tip özetini yazdır:\ndf.______",
+        answer: "info()",
+        cardCode: "# Sütunların veri tipleri ve dolulukları:\ndf.info()"
+      },
+      {
+        func: "df['kolon'].value_counts()",
+        desc: "Sütundaki değerlerin kaçar kez tekrar ettiğini (frekansını) sayar.",
+        quizQ: "Kategori sütunundaki hangi kategoriden kaç sipariş geldiğini bulmak istiyoruz.",
+        blankSnippet: "# Her kategorinin sipariş adedini say:\nsiparis_sayilari = df['Kategori'].______",
+        answer: "value_counts()",
+        cardCode: "# Hangi kategoriden kaçar adet var:\nprint(df['Kategori'].value_counts())"
+      },
+      {
+        func: "df['kolon'].nunique()",
+        desc: "Sütunda kaç farklı/tekil (unique) kayıt olduğunu hesaplar.",
+        quizQ: "Sipariş tablosunda kaç farklı tekil müşteri olduğunu hesaplamak istiyoruz.",
+        blankSnippet: "# Tekil müşteri sayısını hesapla:\ntekil_musteri = df['Musteri_ID'].______",
+        answer: "nunique()",
+        cardCode: "# Tekil kayıt adedi:\nprint(df['Musteri_ID'].nunique())"
+      },
+      {
+        func: "df.sort_values(by=...)",
+        desc: "Tabloyu belirtilen bir sütunun değerlerine göre sıralar.",
+        quizQ: "Satış tablosunu tutara göre büyükten küçüğe sıralamak istiyoruz.",
+        blankSnippet: "# Tutara göre azalan sırada diz:\ndf_sirali = df.______(by='tutar', ascending=False)",
+        answer: "sort_values",
+        cardCode: "# Fiyata göre büyükten küçüğe sıralama:\ndf.sort_values(by='Fiyat', ascending=False)"
+      },
+      {
+        func: "df.rename(columns=...)",
+        desc: "Sütun isimlerini sözlük kullanarak yeniden adlandırır.",
+        quizQ: "'Satis_Tutari' sütun adını 'tutar' olarak değiştirmek istiyoruz.",
+        blankSnippet: "# Kolon adını yeniden adlandır:\ndf = df.______(columns={'Satis_Tutari': 'tutar'})",
+        answer: "rename",
+        cardCode: "# Kolon adını güncelleme:\ndf = df.rename(columns={'Eski_Ad': 'Yeni_Ad'})"
+      },
+      {
+        func: "df.dropna()",
+        desc: "İçerisinde NaN (boş) değer bulunan satırları tablodan tamamen siler.",
+        quizQ: "İçinde eksik veri (NaN) olan satırları veri setinden ayıklamak istiyoruz.",
+        blankSnippet: "# Eksik satırları tamamen çıkar:\ndf_temiz = df.______",
+        answer: "dropna()",
+        cardCode: "# Boş satırları at:\ndf_temiz = df.dropna()"
+      },
+      {
+        func: "df.fillna(deger)",
+        desc: "Boş (NaN) alanları belirlenen ortalama veya sabit bir değerle doldurur.",
+        quizQ: "Harcama sütunundaki eksik değerleri sütunun ortalamasıyla doldurmak istiyoruz.",
+        blankSnippet: "ort = df['Harcama'].mean()\ndf['Harcama'] = df['Harcama'].______(ort)",
+        answer: "fillna",
+        cardCode: "# Eksik değerleri ortalamayla doldur:\ndf['Fiyat'] = df['Fiyat'].fillna(df['Fiyat'].mean())"
+      },
+      {
+        func: "df.drop_duplicates()",
+        desc: "Mükerrer (tekrar eden) satırları siler, ilk kaydı saklar.",
+        quizQ: "Aynı siparişin birden fazla kez sisteme girildiği çift kayıtları temizlemek istiyoruz.",
+        blankSnippet: "# Çift kayıtları ayıkla:\ndf = df.______",
+        answer: "drop_duplicates()",
+        cardCode: "# Mükerrer satırları temizle:\ndf = df.drop_duplicates()"
+      },
+      {
+        func: "df['kolon'].str.strip()",
+        desc: "Metin alanlarının başındaki ve sonundaki tüm gereksiz boşlukları siler.",
+        quizQ: "Kategori sütunundaki verilerin baş ve sonundaki gizli boşlukları temizlemek istiyoruz.",
+        blankSnippet: "# Baş ve sondaki boşluk karakterlerini kırp:\ndf['Kategori'] = df['Kategori'].str.______",
+        answer: "strip()",
+        cardCode: "# Boşlukları temizle:\ndf['Kategori'] = df['Kategori'].str.strip()"
+      },
+      {
+        func: "df.query('...')",
+        desc: "SQL benzeri metin koşuluyla filtreleme yapar.",
+        quizQ: "Elektronik kategorisindeki tutarı 1000'den büyük kayıtları SQL rahatlığıyla filtrelemek istiyoruz.",
+        blankSnippet: "# Metin tabanlı filtre uygula:\nsonuc = df.______(\"Kategori == 'Elektronik' and Tutar > 1000\")",
+        answer: "query",
+        cardCode: "# Sorguyla filtreleme:\ndf.query(\"Kategori == 'Elektronik' and Fiyat > 1000\")"
+      },
+      {
+        func: "df['kolon'].isin([...])",
+        desc: "Sütun değerinin verilen liste içinde olup olmadığını kontrol eder.",
+        quizQ: "Ödeme yöntemi sadece 'Nakit' veya 'Havale' olan satırları filtrelemek istiyoruz.",
+        blankSnippet: "# Liste kontrolüyle filtrele:\nfiltre = df['Odeme_Turu'].______(['Nakit', 'Havale'])\ndf_secim = df[filtre]",
+        answer: "isin",
+        cardCode: "# Liste elemanı kontrolü:\ndf[df['Urun'].isin(['Laptop', 'Mouse'])]"
+      },
+      {
+        func: "df.groupby('...').agg({...})",
+        desc: "Kategorik kırılım yapıp sum, mean, count gibi toplu hesaplamalar yürütür.",
+        quizQ: "Her kategori için toplam satış ve ortalama fiyat değerlerini hesaplamak istiyoruz.",
+        blankSnippet: "# Kategori bazında grupla ve özetle:\nrapor = df.______('Kategori').agg({'Satis': 'sum', 'Fiyat': 'mean'})",
+        answer: "groupby",
+        cardCode: "# Gruplayıp özet alma:\ndf.groupby('Kategori').agg({'Tutar': 'sum'})"
+      },
+      {
+        func: "pd.merge(df1, df2, ...)",
+        desc: "İki tabloyu ortak bir anahtar sütun üzerinden SQL JOIN mantığıyla birleştirir.",
+        quizQ: "Siparişler tablosu ile Müşteriler tablosunu 'musteri_id' üzerinden bağlamak istiyoruz.",
+        blankSnippet: "# İki DataFrame'i ortak ID ile birleştir:\nsonuc = pd.______(df_siparis, df_musteri, on='musteri_id', how='left')",
+        answer: "merge",
+        cardCode: "# Ortak kolonla bağlama:\npd.merge(df1, df2, on='musteri_id', how='left')"
+      }
+    ];
+
+    // FLASHCARD MODU
+    let currentIdx = 0;
+    let isFlipped = false;
+
+    function renderCard() {
+      isFlipped = false;
+      const item = dataset[currentIdx];
+      document.getElementById("card-front").style.display = "block";
+      document.getElementById("card-front").innerText = item.func;
+      document.getElementById("card-back").style.display = "none";
+      document.getElementById("card-desc").innerText = item.desc;
+      document.getElementById("card-example").innerText = item.cardCode;
+      document.getElementById("card-badge").innerText = "KARTA TIKLA (AÇIKLAMA VE KODU GÖR)";
+      document.getElementById("card-counter").innerText = `${currentIdx + 1} / ${dataset.length}`;
+    }
+
+    function flipCard() {
+      isFlipped = !isFlipped;
+      document.getElementById("card-front").style.display = isFlipped ? "none" : "block";
+      document.getElementById("card-back").style.display = isFlipped ? "block" : "none";
+      document.getElementById("card-badge").innerText = isFlipped ? "FONKSİYON ADINA GERİ DÖN" : "KARTA TIKLA (AÇIKLAMA VE KODU GÖR)";
+    }
+
+    function nextCard() {
+      currentIdx = (currentIdx + 1) % dataset.length;
+      renderCard();
+    }
+
+    function prevCard() {
+      currentIdx = (currentIdx - 1 + dataset.length) % dataset.length;
+      renderCard();
+    }
+
+    // QUIZ (BOŞLUK DOLDURMA) MODU
+    let quizIndex = 0;
+    let answered = false;
+
+    function renderQuiz() {
+      answered = false;
+      const q = dataset[quizIndex];
+      document.getElementById("quiz-q").innerHTML = `<b>Soru:</b> ${q.quizQ}`;
+      document.getElementById("quiz-code").innerText = q.blankSnippet;
+      document.getElementById("quiz-feedback").innerHTML = "";
+
+      const optionsBox = document.getElementById("quiz-options");
+      optionsBox.innerHTML = "";
+
+      let pool = [q.answer];
+      let allAnswers = dataset.map(d => d.answer);
+      while (pool.length < 4) {
+        let candidate = allAnswers[Math.floor(Math.random() * allAnswers.length)];
+        if (!pool.includes(candidate)) {
+          pool.push(candidate);
+        }
+      }
+      pool.sort(() => Math.random() - 0.5);
+
+      pool.forEach(opt => {
+        const btn = document.createElement("button");
+        btn.className = "opt-btn";
+        btn.innerText = opt;
+        btn.onclick = () => checkAnswer(btn, opt, q);
+        optionsBox.appendChild(btn);
+      });
+    }
+
+    function checkAnswer(btn, selected, q) {
+      if (answered) return;
+      answered = true;
+      const feedback = document.getElementById("quiz-feedback");
+
+      if (selected === q.answer) {
+        btn.classList.add("correct");
+        feedback.innerHTML = `<span style="color:var(--success)">🌸 Harika! Doğru cevap: <b>${q.answer}</b></span>`;
+      } else {
+        btn.classList.add("wrong");
+        feedback.innerHTML = `<span style="color:var(--danger)"> Yanlış! Doğru cevap: <b>${q.answer}</b> olmalıydı.</span>`;
+        Array.from(document.querySelectorAll(".opt-btn")).forEach(b => {
+          if (b.innerText === q.answer) b.classList.add("correct");
+        });
+      }
+    }
+
+    function nextQuiz() {
+      quizIndex = (quizIndex + 1) % dataset.length;
+      renderQuiz();
+    }
+
+    function switchMode(mode) {
+      const tabs = document.querySelectorAll(".tab-btn");
+      if (mode === 'cards') {
+        tabs[0].classList.add("active");
+        tabs[1].classList.remove("active");
+        document.getElementById("cards-view").style.display = "block";
+        document.getElementById("quiz-view").style.display = "none";
+      } else {
+        tabs[0].classList.remove("active");
+        tabs[1].classList.add("active");
+        document.getElementById("cards-view").style.display = "none";
+        document.getElementById("quiz-view").style.display = "block";
+        renderQuiz();
+      }
+    }
+
+    // Başlangıç yüklemesi
+    renderCard();
+  </script>
+</body>
+</html>
